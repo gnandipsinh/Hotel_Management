@@ -25,10 +25,14 @@ function collectActiveAncestors(items: NavItem[], pathname: string): string[] {
 
 interface SidebarNavProps {
   /** User-collapsed state of the desktop sidebar. */
-  collapsed: boolean;
+  collapsed?: boolean;
+  /** When rendered inside a mobile drawer / sheet */
+  isMobile?: boolean;
+  /** Callback invoked when an item is selected, to close the mobile drawer */
+  onNavigate?: () => void;
 }
 
-export function SidebarNav({ collapsed }: SidebarNavProps) {
+export function SidebarNav({ collapsed = false, isMobile = false, onNavigate }: SidebarNavProps) {
   const pathname = usePathname();
   const { panel, enabledModules } = useShell();
   const belowLg = useMediaQuery("(max-width: 1023px)");
@@ -65,7 +69,8 @@ export function SidebarNav({ collapsed }: SidebarNavProps) {
     }));
   };
 
-  const labelsHidden = collapsed || belowLg;
+  // Mobile drawer always displays full text labels regardless of screen width.
+  const labelsHidden = isMobile ? false : collapsed || belowLg;
 
   return (
     <nav
@@ -75,7 +80,12 @@ export function SidebarNav({ collapsed }: SidebarNavProps) {
       {visibleConfig.sections.map((section) => (
         <div key={section.id} className="flex flex-col gap-1.5">
           {section.title && !collapsed && (
-            <p className="hidden px-3 text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase lg:block">
+            <p
+              className={cn(
+                "px-3 text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase",
+                isMobile ? "block" : "hidden lg:block",
+              )}
+            >
               {section.title}
             </p>
           )}
@@ -84,8 +94,10 @@ export function SidebarNav({ collapsed }: SidebarNavProps) {
               <li key={item.id}>
                 <SidebarNavItem
                   item={item}
-                  collapsed={collapsed}
+                  collapsed={isMobile ? false : collapsed}
                   labelsHidden={labelsHidden}
+                  isMobile={isMobile}
+                  onNavigate={onNavigate}
                   expandable={Boolean(item.children?.length)}
                   open={isOpen(item.id)}
                   onToggle={() => toggle(item.id)}
@@ -97,7 +109,7 @@ export function SidebarNav({ collapsed }: SidebarNavProps) {
       ))}
 
       {visibleConfig.sections.length === 0 && (
-        <p className={cn("px-3 text-xs text-muted-foreground", collapsed && "sr-only")}>
+        <p className={cn("px-3 text-xs text-muted-foreground", collapsed && !isMobile && "sr-only")}>
           No modules are enabled for this hotel yet.
         </p>
       )}

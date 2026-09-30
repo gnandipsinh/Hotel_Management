@@ -8,7 +8,7 @@ import {
   hotelNavigationConfig,
   internalAdminNavigationConfig,
 } from "@/config/navigation";
-import { useShell } from "@/components/layout/shell-context";
+import { useOptionalShell } from "@/components/layout/shell-context";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -20,7 +20,8 @@ import {
 
 export function Breadcrumbs() {
   const pathname = usePathname();
-  const { panel } = useShell();
+  const shell = useOptionalShell();
+  const panel = shell?.panel ?? "hotel";
 
   const config = panel === "admin" ? internalAdminNavigationConfig : hotelNavigationConfig;
   const lookup = React.useMemo(

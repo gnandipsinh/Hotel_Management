@@ -28,6 +28,9 @@ export function LandingActions() {
             <ArrowRightIcon aria-hidden="true" />
           </Link>
         </Button>
+        <Button asChild size="lg" variant="outline">
+          <Link href="/onboarding">Get Started (New Hotel)</Link>
+        </Button>
         <Button
           type="button"
           size="lg"
@@ -46,13 +49,16 @@ export function LandingActions() {
 
   return (
     <div className="flex flex-wrap items-center gap-3">
-      <Button asChild size="lg">
-        <Link href="/login">
-          Open demo console
+      <Button asChild size="lg" className="shadow-sm">
+        <Link href="/onboarding">
+          Get Started
           <ArrowRightIcon aria-hidden="true" />
         </Link>
       </Button>
       <Button asChild size="lg" variant="outline">
+        <Link href="/login">Open demo console</Link>
+      </Button>
+      <Button asChild size="lg" variant="ghost">
         <Link href="/login?next=/admin">Platform control plane</Link>
       </Button>
     </div>

@@ -16,6 +16,9 @@ export interface SidebarNavItemProps {
   collapsed: boolean;
   /** True when labels are not visible (collapsed desktop or compact tablet). */
   labelsHidden: boolean;
+  /** When rendered in mobile drawer / sheet */
+  isMobile?: boolean;
+  onNavigate?: () => void;
   expandable: boolean;
   open: boolean;
   onToggle: () => void;
@@ -40,6 +43,8 @@ export function SidebarNavItem({
   item,
   collapsed,
   labelsHidden,
+  isMobile = false,
+  onNavigate,
   expandable,
   open,
   onToggle,
@@ -54,17 +59,28 @@ export function SidebarNavItem({
   const childActive = item.children?.some((child) => matches(child.href)) ?? false;
   const isActive = item.children?.length ? childActive || selfActive : selfActive;
 
+  const handleLinkClick = (event: React.MouseEvent) => {
+    if (item.disabled) {
+      event.preventDefault();
+      return;
+    }
+    if (isMobile) {
+      onNavigate?.();
+    }
+  };
+
   const link = (
     <Link
       href={item.disabled ? "#" : item.href}
       aria-current={isActive ? "page" : undefined}
       aria-disabled={item.disabled || undefined}
-      onClick={item.disabled ? (event) => event.preventDefault() : undefined}
+      onClick={handleLinkClick}
       className={cn(
         "group relative flex h-9 w-full items-center gap-3 rounded-lg px-3 text-sm font-medium outline-none transition-colors",
         "focus-visible:ring-3 focus-visible:ring-ring/50",
-        !collapsed && "md:justify-center md:px-0 lg:justify-start lg:px-3",
+        !collapsed && !isMobile && "md:justify-center md:px-0 lg:justify-start lg:px-3",
         collapsed && "justify-center px-0",
+        isMobile && "justify-start px-3",
         isActive
           ? "bg-sidebar-accent text-sidebar-accent-foreground"
           : "text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground",
@@ -82,14 +98,17 @@ export function SidebarNavItem({
       {collapsed ? (
         <span className="sr-only">{item.title}</span>
       ) : (
-        <span className="hidden truncate lg:inline">{item.title}</span>
+        <span className={cn("truncate", isMobile ? "inline" : "hidden lg:inline")}>
+          {item.title}
+        </span>
       )}
 
       {item.badge !== undefined && !collapsed && (
         <Badge
           variant={item.badgeVariant === "destructive" ? "destructive" : item.badgeVariant === "outline" ? "outline" : "secondary"}
           className={cn(
-            "ml-auto hidden border-transparent lg:inline-flex",
+            "ml-auto border-transparent",
+            isMobile ? "inline-flex" : "hidden lg:inline-flex",
             badgeClassFor(item.badgeVariant),
           )}
         >
@@ -101,7 +120,8 @@ export function SidebarNavItem({
         <ChevronRightIcon
           aria-hidden="true"
           className={cn(
-            "ml-auto hidden size-3.5 shrink-0 text-sidebar-foreground/40 transition-transform group-hover:translate-x-0.5 lg:block",
+            "ml-auto size-3.5 shrink-0 text-sidebar-foreground/40 transition-transform group-hover:translate-x-0.5",
+            isMobile ? "block" : "hidden lg:block",
             collapsed && "hidden",
           )}
         />
@@ -121,7 +141,7 @@ export function SidebarNavItem({
             aria-expanded={open}
             aria-label={`${open ? "Collapse" : "Expand"} ${item.title} menu`}
             onClick={onToggle}
-            className="mr-1 hidden shrink-0 lg:inline-flex"
+            className={cn("mr-1 shrink-0", isMobile ? "inline-flex" : "hidden lg:inline-flex")}
           >
             <ChevronRightIcon
               className={cn("size-3.5 transition-transform", open && "rotate-90")}
@@ -131,7 +151,12 @@ export function SidebarNavItem({
       </div>
 
       {expandable && open && !collapsed && (
-        <ul className="ml-5 hidden flex-col gap-1 border-l border-sidebar-border/70 pl-3 lg:flex">
+        <ul
+          className={cn(
+            "ml-5 flex-col gap-1 border-l border-sidebar-border/70 pl-3",
+            isMobile ? "flex" : "hidden lg:flex",
+          )}
+        >
           {item.children?.map((child) => {
             const ChildIcon = child.icon;
             const childActive = matches(child.href);
@@ -140,6 +165,7 @@ export function SidebarNavItem({
                 <Link
                   href={child.href}
                   aria-current={childActive ? "page" : undefined}
+                  onClick={() => isMobile && onNavigate?.()}
                   className={cn(
                     "flex h-8 items-center gap-2.5 rounded-md px-2.5 text-[0.8125rem] outline-none transition-colors",
                     "focus-visible:ring-3 focus-visible:ring-ring/50",
@@ -162,7 +188,7 @@ export function SidebarNavItem({
     </div>
   );
 
-  if (labelsHidden) {
+  if (labelsHidden && !isMobile) {
     return (
       <Tooltip>
         <TooltipTrigger asChild>{link}</TooltipTrigger>

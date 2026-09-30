@@ -69,6 +69,7 @@ export function Topbar() {
           size="icon-sm"
           aria-label="Help and support"
           onClick={() => setHelpOpen(true)}
+          className="hidden sm:inline-flex"
         >
           <BadgeHelpIcon aria-hidden="true" />
         </Button>

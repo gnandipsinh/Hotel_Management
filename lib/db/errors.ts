@@ -5,8 +5,11 @@ export const ErrorCode = {
   INVALID_INPUT: "INVALID_INPUT",
   UNAUTHENTICATED: "UNAUTHENTICATED",
   FORBIDDEN: "FORBIDDEN",
+  TENANT_ACCESS_ERROR: "TENANT_ACCESS_ERROR",
   NOT_FOUND: "NOT_FOUND",
   CONFLICT: "CONFLICT",
+  DATABASE_ERROR: "DATABASE_ERROR",
+  EXTERNAL_SERVICE_ERROR: "EXTERNAL_SERVICE_ERROR",
   INTERNAL_ERROR: "INTERNAL_ERROR",
 } as const;
 
@@ -42,12 +45,24 @@ export class ApiError extends Error {
     return new ApiError(403, ErrorCode.FORBIDDEN, message);
   }
 
+  static tenantAccessDenied(message = "Cross-tenant access prohibited"): ApiError {
+    return new ApiError(403, ErrorCode.TENANT_ACCESS_ERROR, message);
+  }
+
   static notFound(message = "Resource not found"): ApiError {
     return new ApiError(404, ErrorCode.NOT_FOUND, message);
   }
 
   static conflict(message = "Resource already exists"): ApiError {
     return new ApiError(409, ErrorCode.CONFLICT, message);
+  }
+
+  static databaseError(message = "Database operation failed"): ApiError {
+    return new ApiError(500, ErrorCode.DATABASE_ERROR, message);
+  }
+
+  static externalService(message = "External service unavailable"): ApiError {
+    return new ApiError(502, ErrorCode.EXTERNAL_SERVICE_ERROR, message);
   }
 
   static internal(message = "Internal server error"): ApiError {
@@ -135,6 +150,32 @@ export function jsonError(err: ApiError): NextResponse {
   return NextResponse.json(body, { status: err.statusCode });
 }
 
+function isDbOfflineError(err: unknown): boolean {
+  if (!err) return false;
+  if (err instanceof mongoose.mongo.MongoNetworkError) return true;
+  if (err instanceof mongoose.mongo.MongoServerSelectionError) return true;
+  if (err instanceof Error) {
+    const msg = err.message || "";
+    const name = err.name;
+    if (
+      name === "MongooseError" ||
+      name === "MongoNetworkError" ||
+      name === "MongooseServerSelectionError" ||
+      msg.includes("Database is not configured") ||
+      msg.includes("buffering timed out") ||
+      msg.includes("ECONNREFUSED") ||
+      msg.includes("server selection timed out")
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function handleRouteError(err: unknown): NextResponse {
+  if (isDbOfflineError(err)) {
+    console.warn("[AI Studio] Database offline — returning mock empty response");
+    return jsonOk([], { page: 1, limit: 10, total: 0, totalPages: 0 });
+  }
   return jsonError(normalizeDbError(err));
 }

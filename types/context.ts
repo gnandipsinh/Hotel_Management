@@ -37,6 +37,24 @@ export interface UserProfile {
   isPlatformAdmin?: boolean;
 }
 
+/**
+ * TenantContext represents the resolved multi-tenant security boundary
+ * for incoming API requests and Server Actions.
+ */
+export interface TenantContext {
+  /** The tenant hotel id (MongoDB ObjectId string) */
+  hotelId: string;
+  /** Optional active branch context within the hotel */
+  branchId?: string;
+  /** Resolved user performing the request */
+  user?: {
+    id: string;
+    role: string;
+    allowedBranches: string[];
+    isPlatformAdmin: boolean;
+  };
+}
+
 export type NotificationCategory =
   | "booking"
   | "payment"

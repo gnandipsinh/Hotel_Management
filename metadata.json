@@ -1,0 +1,5 @@
+{
+  "name": "HotelSync - Enterprise Hotel Management SaaS",
+  "description": "Multi-tenant hotel management SaaS platform for bookings, front desk, housekeeping, F&B, finance, and platform administration.",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

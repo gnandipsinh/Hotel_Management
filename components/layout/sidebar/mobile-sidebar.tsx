@@ -53,7 +53,11 @@ export function MobileSidebar() {
         </SheetHeader>
 
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-          <SidebarNav collapsed={false} />
+          <SidebarNav
+            collapsed={false}
+            isMobile
+            onNavigate={() => setMobileNavOpen(false)}
+          />
         </div>
 
         <div className="border-t border-sidebar-border p-3">

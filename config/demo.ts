@@ -386,7 +386,7 @@ export const DEMO_USER_GROUPS: DemoUserGroup[] = [
 ];
 
 /** Routes that never require a demo session. */
-export const PUBLIC_DEMO_ROUTES = ["/", "/login"];
+export const PUBLIC_DEMO_ROUTES = ["/", "/login", "/onboarding", "/design-system"];
 
 /** Resolve a demo user by id (used to rebuild profile data from a session). */
 export function getDemoUser(id: string): DemoUser | null {

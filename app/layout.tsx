@@ -9,8 +9,9 @@ import { Toaster } from "@/components/ui/sonner";
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "HotelSync — Enterprise Hotel Management SaaS",
-  description: "Production-ready Multi-tenant Hotel Management SaaS Platform",
+  title: "HotelHub — Enterprise Hotel Management Platform",
+  description:
+    "Manage Your Hotel Smarter, Faster & Easier with HotelHub — the all-in-one cloud platform for bookings, front desk, housekeeping, UPI payments, and GST invoicing.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

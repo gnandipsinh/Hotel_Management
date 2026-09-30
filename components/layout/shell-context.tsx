@@ -30,6 +30,10 @@ interface ShellContextValue {
 
 const ShellContext = React.createContext<ShellContextValue | null>(null);
 
+export function useOptionalShell(): ShellContextValue | null {
+  return React.useContext(ShellContext);
+}
+
 export function useShell(): ShellContextValue {
   const context = React.useContext(ShellContext);
   if (!context) {
